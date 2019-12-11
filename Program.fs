@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.Collections.Generic
 
 // Begin algorithm
@@ -141,13 +141,13 @@ let finalGraph<'a,'b when 'a : comparison and 'b : comparison> (inputCoalg : Coa
     graphOfCoalg outputCoalg    
 
 let unsupportedArguments s1 s2 = 
-    //printfn "Usage: MinLogicA input.{png,dot} output.dot [quotient.{png,dot}]\nQuotient can be png only if input is also png\n" 
+    //printfn "Usage: MiniLogicA input.{png,dot} output.dot [quotient.{png,dot}]\nQuotient can be png only if input is also png\n" 
     printfn "Operating with input extension %s and output extension %s is not supported" s1 s2 
 
 
 let usage () = 
-    //printfn "Usage: MinLogicA input.{png,dot} [output.dot] [quotient.{png,dot}]\nQuotient can be png only if input is also png\n" 
-    printfn "Usage: MinLogicA input.{png,json} [output.{dot}]"
+    //printfn "Usage: MiniLogicA input.{png,dot} [output.dot] [quotient.{png,dot}]\nQuotient can be png only if input is also png\n" 
+    printfn "Usage: MiniLogicA input.{png,json} [output.{dot}]"
     //printfn "Quotient can be png only if input is also png"
     printfn "" 
     exit 0
