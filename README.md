@@ -4,6 +4,8 @@ MiniLogicA is a minimizer for images and graphs. It quotients such spatial struc
 
 Source code requires `dotnet core 3.0` to compile, see https://dotnet.microsoft.com/download. Run "make publish" to create the executables.
 
+*Download link:* https://github.com/vincenzoml/MiniLogicA/releases
+
 ## Purpose 
 
 Given either a graph or an image, the tool will compute 1) the minimal system in the form of a graph; 2) the equivalence classes (textual representation); 3) a coloured copy of the original system (either image or graph) with colours corresponding to the equivalence classes; 4) furthermore, when the input is an image, output #1, although being a graph, will have the same colours of the original image
@@ -12,7 +14,7 @@ Given either a graph or an image, the tool will compute 1) the minimal system in
 
 Only #1 is implemented. The computation of #2 and #3 is already in the source code, but saving is not implemented yet. #4 is not implemented.
 
-## Input and output formats
+## Input and output formats for images and graphs
 
 #### Input, graphs
 
