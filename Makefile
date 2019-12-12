@@ -1,5 +1,5 @@
 test:
-	dotnet run testGraph.json
+	@dotnet run testGraph.json
 
 publish:
 	dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true	

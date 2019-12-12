@@ -45,9 +45,9 @@ let reduce coalg =
 open FSharp.Data
 
 type 
-    Graph = { nodes : Node list; arcs : Arc list} 
+    Graph<'ap> = { nodes : Node<'ap> list; arcs : Arc list} 
 and
-    Node = { id : string; atoms : string list }
+    Node<'ap> = { id : string; atoms : 'ap list }
 and
     Arc = { source : string; target: string }
 
@@ -58,7 +58,7 @@ module List =
             | xs -> x::sep::xs) ls []
 
 let loadGraph filename = 
-    FSharp.Json.Json.deserialize<Graph>(System.IO.File.ReadAllText(filename))
+    FSharp.Json.Json.deserialize<Graph<string>>(System.IO.File.ReadAllText(filename))
 
 let coalgOfGraph graph =
     let statesObs = Seq.map (fun node -> (node.id,node.atoms)) graph.nodes
@@ -76,10 +76,10 @@ let coalgOfGraph graph =
     // TODO: add self-loops
     Coalg(states, fun state -> (obs state,fnInverse state,fnDirect state))
 
-let graphOfCoalg<'a,'b when 'a : comparison and 'b : comparison> (coalg : Coalg<'a,'b>) = 
-    let obs state = Seq.toList (let (o,_,_) = coalg.Fn state in Set.map (fun x -> x.ToString()) o)
+let graphOfCoalg<'a,'b when 'a : comparison and 'b : comparison> (coalg : Coalg<'a,'b>) : Graph<'b> = 
+    let obs state = Seq.toList (let (o,_,_) = coalg.Fn state in o)
     let arr state = Seq.toList (let (_,_,dst) = coalg.Fn state in dst)
-    let nodes = Seq.map (fun state -> { id = state.ToString() ; atoms = List.map string <| obs state }) coalg.Carrier
+    let nodes = Seq.map (fun state -> { id = state.ToString() ; atoms = obs state }) coalg.Carrier
     let arcsOf x = List.map (fun y -> {source = x.ToString(); target = y.ToString()}) (arr x)
     let arcs = List.collect arcsOf (Set.toList coalg.Carrier)
     { nodes = Seq.toList nodes; arcs = arcs }
@@ -87,15 +87,14 @@ let graphOfCoalg<'a,'b when 'a : comparison and 'b : comparison> (coalg : Coalg<
 let saveJson graph filename =    
     System.IO.File.WriteAllText(filename,FSharp.Json.Json.serialize(graph))
 
-let graphViz graph =
+let graphViz (labelling : 'ap list -> string) (colouring : 'ap list -> string) (graph : Graph<'ap>) =
     let mutable res = []
     let pushLine x = res <- (x::res)
     //let symmetric = match graph.symmetric with Some true -> true | _ -> false
     let symmetric = false // TODO: see above, implement
     let separator = if symmetric then "--" else "->"
-    pushLine (if symmetric then "graph {" else "digraph {")    
-    let atoms node = System.String.Concat(List.intersperse "," node.atoms)
-    Seq.iter (fun node -> pushLine (sprintf "  %s [label=\"%s\"];" node.id (atoms node))) graph.nodes
+    pushLine (if symmetric then "graph {" else "digraph {")        
+    Seq.iter (fun node -> pushLine (sprintf "  %s [label=\"%s\",fillcolor=\"%s\",style=\"filled\"];" node.id (labelling node.atoms) (colouring node.atoms) )) graph.nodes
     pushLine ""
     Seq.iter (fun arc -> pushLine (sprintf "  %s %s %s;" arc.source separator arc.target)) graph.arcs
     pushLine "}"
@@ -152,10 +151,10 @@ let usage () =
     printfn "" 
     exit 0
 
-let minimize coalg =
+let minimize (labelling : 'ap list -> string) (colouring : 'ap list -> string) (coalg : Coalg<'s,'ap>) =
     let (k,q) = reduce coalg 
     let outputGraph = finalGraph coalg (k,q) // todo: more efficient to return this from "reduce"    
-    graphViz outputGraph 
+    graphViz labelling colouring outputGraph 
 
 [<EntryPoint>]
 let main argv = 
@@ -167,8 +166,12 @@ let main argv =
     let output = if argv.Length = 2 then Some argv.[1] else None
     let res = 
         match (inExt,outExt) with
-        | ".json",".dot" -> minimize (coalgOfGraph (loadGraph inFileName))            
-        | ".png",".dot" -> minimize (coalgOfImage (loadImage inFileName))            
+        | ".json",".dot" -> 
+            let c = coalgOfGraph (loadGraph inFileName)
+            minimize (String.concat ",") (fun _ -> "white") c
+        | ".png",".dot" -> 
+            let c = coalgOfImage (loadImage inFileName)
+            minimize (fun _ -> "") (fun [(r,g,b)] -> Printf.sprintf "#%02X%02X%02X" r g b) c
         | s1,s2 -> 
             unsupportedArguments s1 s2
             usage ()
