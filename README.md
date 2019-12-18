@@ -10,9 +10,9 @@ Source code requires `dotnet core 3.0` to compile, see https://dotnet.microsoft.
 
 Given either a graph or an image, the tool will compute 1) the minimal system in the form of a graph; 2) the equivalence classes (textual representation); 3) a coloured copy of the original system (either image or graph) with colours corresponding to the equivalence classes; 4) furthermore, when the input is an image, output #1, although being a graph, will have the same colours of the original image
 
-## Current state 
+## Current status
 
-Only #1 is implemented. The computation of #2 and #3 is already in the source code, but saving is not implemented yet. #4 is not implemented.
+#1 and #4 are implemented. The computation of #2 and #3 is already in the source code, but saving is not implemented yet.
 
 ## Input and output formats for images and graphs
 
